@@ -141,6 +141,10 @@ export default function QuoteForm() {
     setStatus('sending');
     try {
       const res = await sendLead(payload);
+      if (!res.success) {
+        setStatus('error');
+        return;
+      }
       setSentMessage(res.message);
       setStatus('sent');
     } catch {

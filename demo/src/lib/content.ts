@@ -109,9 +109,9 @@ export const agent = {
   starters: [
     'Which tier fits 3 warehouses and 400 orders a month?',
     'What does billing reconciliation actually check?',
-    'What does Flowdeck integrate with?',
+    'How long does onboarding take?',
   ],
-  composerPlaceholder: 'Ask about modules, tiers, onboarding, integrations',
+  composerPlaceholder: 'Ask about modules, tiers, onboarding',
   demoPlaceholder: 'The agent is switched off in this demo',
   errorText: 'The agent is not reachable right now.',
   formCta: 'Open the quote form',
