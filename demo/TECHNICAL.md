@@ -72,6 +72,10 @@ It accepts a query embedding, a match count (default 4), and an optional filter 
 filter is required by the call signature of the n8n Supabase Vector Store node. It is unused in
 this build, because there is no per-chunk metadata to filter on.
 
+<p align="center">
+  <img src="../docs/images/supabase-documents.png" alt="The Supabase table editor open on the documents table, showing knowledge base chunks as rows with their text content, a 3072 dimension embedding vector, the source file name and the chunk index" width="820" />
+</p>
+
 ### `chat_messages`
 
 Stores the AI agent's conversation history. Its shape is dictated by n8n's Postgres Chat Memory

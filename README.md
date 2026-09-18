@@ -349,6 +349,15 @@ still makes sense, and replies. It never states a price. It sends people to the 
 and suggests the form on its own when a visitor reveals a buying signal, such as a warehouse
 count or a timeline.
 
+Below is a live run. The agent panel is on the left, and on the right the n8n canvas shows the
+same request passing through the agent chain: the webhook, the agent, its model, its memory and
+its vector store. The second question, "does that apply to smaller operators too", only makes
+sense because the agent remembers the answer before it.
+
+<p align="center">
+  <img src="docs/images/agent-in-action.png" alt="A live run of the agent. On the left, the Ask Flowdeck AI panel showing an answer about billing reconciliation, the follow-up question 'Does that apply to smaller operators too, or just the bigger accounts?' and the agent's reply. On the right, the n8n canvas for the workflow named Ampersand with the agent webhook, the RAG agent, the Anthropic model, the chat memory, the vector store and the Gemini embeddings all showing green ticks" width="820" />
+</p>
+
 The files behind it:
 
 | File | What it does |
@@ -385,6 +394,14 @@ answers, saved, and answered with the same generic thank you, so the visitor lea
 about their score. A score of 12 or more is high intent. A high-intent lead goes to one of four
 owners by warehouse count, gets a notification email, and has its row updated with the owner.
 A lower score is saved and goes no further.
+
+Below is a live run. The visitor sees only the "Received" stamp and the generic thank you on
+the left. On the right, the lead chain has just run from end to end: the webhook, the scoring
+node, the insert, the intent check, the switch by warehouse count and the response.
+
+<p align="center">
+  <img src="docs/images/quote-form-routing.png" alt="A live run of the lead form. On the left, the submitted form with a 'Received' stamp and the message 'Thanks for reaching out! Our team will be in touch soon.' On the right, the n8n canvas for the lead chain: a webhook, a scoring node, an insert, an intent check, a switch by warehouse count into four notify and update branches and a response, with a 'Workflow executed successfully' message" width="820" />
+</p>
 
 <p align="center">
   <img src="docs/images/automation.png" alt="The n8n canvas for the workflow named Ampersand. On the left, the agent chain: a webhook into a RAG agent with an Anthropic model, chat memory and a vector store with Gemini embeddings, into a response. On the right, the lead chain: a webhook, a scoring code node, an insert, an intent check, a switch by warehouse count into four notify and update branches, and a response" width="820" />
