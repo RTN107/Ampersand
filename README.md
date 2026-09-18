@@ -335,7 +335,7 @@ How everything underneath works, from the knowledge base to the database to the 
 Shared on the developer's LinkedIn page and portfolio website as the agent demo video.
 
 <p align="center">
-  <img src="docs/images/agent.png" alt="The Flowdeck AI agent panel open over the site: an 'Ask Flowdeck AI' header, the prompt 'What would you like to know?', three suggested questions about tiers, billing reconciliation and integrations, and a message box at the bottom" width="820" />
+  <img src="docs/images/flowdeck-ai-agent.png" alt="The Flowdeck AI agent panel open over the site: an 'Ask Flowdeck AI' header, the prompt 'What would you like to know?', three suggested questions about tiers, billing reconciliation and onboarding, and a message box at the bottom" width="820" />
 </p>
 
 The site has a live agent that answers from Flowdeck's knowledge base. It is not a chat bubble
