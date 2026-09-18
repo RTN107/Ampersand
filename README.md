@@ -131,7 +131,8 @@ In n8n, create a workflow and use **Import from file**, choosing
 [`generic/workflow/ampersand-workflow.json`](generic/workflow/ampersand-workflow.json).
 
 This creates one workflow named **Ampersand** holding both chains. It imports switched off,
-which is what you want until the steps below are done.
+which is what you want until the steps below are done. What every node does is in
+[`generic/GENERIC-GUIDE.md`](generic/GENERIC-GUIDE.md#4-the-workflow).
 
 ### 3.4 Connect your credentials
 
@@ -239,7 +240,7 @@ Flowdeck's. Here is where each one lives.
 The plain page builds its form from the `FORM_FIELDS` array in `generic/website/index.html`.
 Add, remove, rename or retype a field by editing that array, and nothing else in the page. The
 `id` of each entry is the key sent to the workflow. Every option of the array is described in
-[`generic/website/GENERIC-WEBSITE-GUIDE.md`](generic/website/GENERIC-WEBSITE-GUIDE.md).
+[`generic/GENERIC-GUIDE.md`](generic/GENERIC-GUIDE.md#32-changing-the-form-fields).
 
 **The default fields are a generic example and will not score.** The workflow scores four
 specific fields by their exact wording. To use the workflow as shipped, replace `FORM_FIELDS`
@@ -304,7 +305,8 @@ sends these can be the front end, not just the two included here.
 | Notes | `session_id` identifies one conversation. The front ends make one per page load, in memory | Every submission gets the same reply, so the visitor never sees a score or a routing decision |
 
 Chat memory is kept on the n8n side, keyed by `session_id`. The front end sends only the newest
-message.
+message. Which form field feeds which node is in
+[`generic/GENERIC-GUIDE.md`](generic/GENERIC-GUIDE.md#2-how-the-page-and-the-workflow-fit-together).
 
 ---
 
@@ -418,11 +420,11 @@ off, sending nothing anywhere. That is how to host it with no backend behind it.
 ```
 Ampersand/
 ├── generic/                          Run the automation yourself
+│   ├── GENERIC-GUIDE.md              The plain page and the workflow, node by node
 │   ├── workflow/
 │   │   └── ampersand-workflow.json   The n8n export: agent chain and lead chain
 │   └── website/
-│       ├── index.html                The plain page: a chat box and a configurable form
-│       └── GENERIC-WEBSITE-GUIDE.md  Every option of the plain page
+│       └── index.html                The plain page: a chat box and a configurable form
 ├── demo/                             The Flowdeck site, built on the same workflow
 │   ├── src/                          The site's source
 │   ├── knowledge/
