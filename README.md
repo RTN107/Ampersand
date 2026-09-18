@@ -82,7 +82,7 @@ Everything below is for connecting them to a backend of your own.
 |---|---|
 | [n8n](https://n8n.io/) | Runs the workflow. Self-hosted, Docker and n8n Cloud all work, and `npx n8n` starts a local one at http://localhost:5678 |
 | A Supabase project | Holds the knowledge base vectors, the chat history and the leads |
-| An Anthropic API key | The agent's model |
+| An AI API key | The agent's model |
 | A Google Gemini API key | Embeds each question, so it can be matched against your knowledge base |
 | An SMTP account | Sends the lead notification emails |
 | A knowledge base of your own | The documents the agent answers from |
