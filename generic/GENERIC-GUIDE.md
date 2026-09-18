@@ -94,7 +94,7 @@ so it is not saved. With only the defaults, `company` and the four scored fields
 every lead scores 0 and none is emailed. To make the workflow score, give the page the seven
 fields above, with each `id` and each option written exactly as the workflow matches it. A
 ready-made array is in
-[section 5.1 of the main README](../README.md#5-making-it-yours).
+[section 5.1 of the main README](../README.md#51-the-form-fields).
 
 ### CORS
 
@@ -124,7 +124,8 @@ comment block at the very top of the file lists the same steps.
 | CSS variables in `:root` (optional) | `<style>` block | Your colours, radius and font |
 
 Both URL constants are checked at runtime. If either still starts with `PASTE_YOUR_`, the
-matching half of the page shows a message on the page and sends nothing.
+matching half of the page sends nothing and says so on the page: the chat when the page loads,
+the form when you press Submit.
 
 The webhook URLs are visible to anyone who views the page source. Treat them as public, and
 protect them on the n8n side (validation, rate limiting) if that matters for your use.
@@ -211,7 +212,9 @@ Scores a form submission, saves it, and notifies an owner when the lead is a str
 | `Ampersand - Lead Response` | Returns `{ "success": true, "message": "Thanks for reaching out! Our team will be in touch soon." }` |
 
 Every submission gets that same response, high intent or low, so the visitor never learns their
-score or where it went.
+score or where it went. The one exception is a high-intent lead whose `warehouse_count` matches
+none of the four Switch values: the Switch has no fallback output, so that lead is saved but the
+request may get no confirmation. Keep the page's options identical to the Switch values.
 
 **Scoring.** Values are matched exactly, including capitalisation and spacing. A value that does
 not match scores 0 for that field. The highest possible score is 20.
@@ -228,6 +231,7 @@ not match scores 0 for that field. The highest possible score is 20.
 | Table | Touched by | Columns |
 |---|---|---|
 | `documents` | Vector Store | The stored chunks and their embeddings |
+| `match_documents` (a database function) | Vector Store | The similarity search over `documents`. n8n's Supabase vector store node calls a function of this name by default |
 | `chat_messages` | Chat Memory | The conversation, in the shape n8n's Postgres Chat Memory node requires |
 | `leads` | Insert Lead, Update Lead | `id`, `name`, `company`, `warehouse_count`, `order_volume`, `current_tooling`, `timeline`, `score`, `intent`, `email`, `status`, `email_sent`, `assigned_owner` |
 

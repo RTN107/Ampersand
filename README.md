@@ -46,7 +46,7 @@ placeholder, and section 5 says exactly where to change it.
 |---|---|---|
 | What it is | The n8n workflow export, and one plain HTML page that talks to it | The full Flowdeck site built on the same workflow, with its knowledge base |
 | Who it is for | Anyone who wants to run the automation for their own project | Anyone who wants to see the finished project as it was built and shown |
-| Needs | A browser, and an n8n you can import into | Node.js 20.19 or newer |
+| Needs | A browser, and an n8n you can import into | Node.js 20.19+ or 22.12+ |
 | Where to read | Sections 2 to 6 | Section 7 |
 
 The demo was built by the developer and is shared on the developer's LinkedIn page and portfolio
@@ -66,11 +66,13 @@ npm run dev
 ```
 
 Open http://localhost:5173. The site and its animation run as they do in the demos. The agent
-and the form need your own webhook URLs before they do anything, which is section 3. Sending
-a message before then shows an error.
+and the form need your own webhook URLs before they do anything. Get them as section 3.6
+describes, and put them in `demo/.env` as section 7.3 shows. Sending a message before then
+shows an error.
 
 For the plain page, open `generic/website/index.html` in a browser by double clicking it. It
-shows a chat box and a form, and each says plainly that it is not connected yet.
+shows a chat box and a form. The chat says it is not connected yet as soon as the page loads,
+and the form says so when you press Submit.
 
 Everything below is for connecting them to a backend of your own.
 
@@ -86,7 +88,7 @@ Everything below is for connecting them to a backend of your own.
 | A Google Gemini API key | Embeds each question, so it can be matched against your knowledge base |
 | An SMTP account | Sends the lead notification emails |
 | A knowledge base of your own | The documents the agent answers from |
-| Node.js 20.19 or newer | The demo site only. The plain page needs nothing but a browser |
+| Node.js 20.19+ or 22.12+ | The demo site only. The plain page needs nothing but a browser |
 
 There is no build step for the plain page and no dependency to install.
 
@@ -113,6 +115,7 @@ What the workflow expects to find:
 | Table | Used by | What it holds |
 |---|---|---|
 | `documents` | `Ampersand - Vector Store` | Your knowledge base, as embedded chunks. The agent searches this |
+| `match_documents` (a database function) | `Ampersand - Vector Store` | The similarity search over `documents`. n8n's Supabase vector store node calls a function of this name by default, so you need to create one. The demo's is described in [`demo/TECHNICAL.md`](demo/TECHNICAL.md#3-supabase-schema) |
 | `chat_messages` | `Ampersand - Chat Memory` | The conversation history, in the shape n8n's Postgres Chat Memory node requires |
 | `leads` | `Ampersand - Insert Lead`, `Ampersand - Update Lead` nodes | One row per form submission |
 
@@ -181,8 +184,8 @@ const AGENT_CHAT_URL = "PASTE_YOUR_AGENT_CHAT_WEBHOOK_URL_HERE";
 const LEAD_CAPTURE_URL = "PASTE_YOUR_LEAD_CAPTURE_WEBHOOK_URL_HERE";
 ```
 
-Open the file in a browser. Until a placeholder is replaced, that half of the page shows a
-setup message and sends nothing.
+Open the file in a browser. Until a placeholder is replaced, that half of the page sends
+nothing and says so: the chat when the page loads, the form when you press Submit.
 
 If you would rather serve it than open the file, any static server works, for example
 `npx serve generic/website`.
@@ -393,7 +396,7 @@ on are in [`demo/TECHNICAL.md`](demo/TECHNICAL.md#6-lead-scoring-and-routing-wor
 
 ### 7.3 Run the demo locally
 
-Needs Node.js 20.19 or newer.
+Needs Node.js 20.19+ or 22.12+.
 
 ```
 cd demo

@@ -129,8 +129,7 @@ The agent's system prompt instructs it to:
 
 - answer only from the knowledge base tool;
 - never state a specific price or dollar figure;
-- describe the four pricing tiers only in terms of their warehouse and order volume
-  thresholds, as the knowledge base states them;
+- answer questions about a pricing tier from what the knowledge base returns for it;
 - always defer exact pricing to the contact form;
 - proactively suggest the form when it detects buying signals, such as a stated warehouse
   count, a timeline, or dissatisfaction with spreadsheets.

@@ -9,7 +9,8 @@ For how the agent, the knowledge base, the database and the lead scoring work un
 
 ## Run it locally
 
-Requires Node.js 20.19 or newer (22.12 or newer also works). Nothing else.
+Requires Node.js 20.19+ or 22.12+. The build tool does not support Node 21 or 22.0 to 22.11.
+Nothing else.
 
 ```
 cd demo
@@ -42,7 +43,7 @@ Set in `.env`, copied from `.env.example`. `.env` is git-ignored, never commit i
 |---|---|
 | `src/config.ts` | Reads the three variables above. The only place environment values enter the code |
 | `src/lib/api.ts` | The only module that makes network calls: one function for chat, one for the form |
-| `src/lib/content.ts` | Every word of copy on the page, drawn from the knowledge base |
+| `src/lib/content.ts` | Most of the copy on the page, drawn from the knowledge base. A few labels are written directly in the components |
 | `src/lib/tier.ts` | The exact form values the workflow's scoring expects, and the tier rule |
 | `src/components/AgentPanel.tsx` | The expanded chat panel |
 | `src/components/AgentContext.tsx` | Chat state, the per-visit session id, error and retry handling |
