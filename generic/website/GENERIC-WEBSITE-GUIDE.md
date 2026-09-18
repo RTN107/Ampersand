@@ -1,5 +1,7 @@
 # Generic website reference
 
+Every option of `index.html` in this folder. For setup and how it connects to the workflow, see the [main README](../../README.md).
+
 ## File
 
 `index.html` in this folder is a single static HTML file (inline CSS, vanilla JavaScript, no dependencies) with a chat widget wired to an AI agent webhook and a configurable contact form wired to a lead-capture webhook.

@@ -12,6 +12,6 @@ export const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
 // which accept exactly one request after "Execute workflow" is clicked in
 // the n8n editor, so the canvas lights up live as a request passes through.
 // Set your own workflow's webhook URLs in `.env`; see `.env.example` and
-// the README in the repository root.
+// the main README in the repository root.
 export const AGENT_CHAT_URL = import.meta.env.VITE_AGENT_CHAT_URL ?? '';
 export const LEAD_CAPTURE_URL = import.meta.env.VITE_LEAD_CAPTURE_URL ?? '';

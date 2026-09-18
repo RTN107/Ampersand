@@ -239,7 +239,7 @@ Flowdeck's. Here is where each one lives.
 The plain page builds its form from the `FORM_FIELDS` array in `generic/website/index.html`.
 Add, remove, rename or retype a field by editing that array, and nothing else in the page. The
 `id` of each entry is the key sent to the workflow. Every option of the array is described in
-[`generic/website/README.md`](generic/website/README.md).
+[`generic/website/GENERIC-WEBSITE-GUIDE.md`](generic/website/GENERIC-WEBSITE-GUIDE.md).
 
 **The default fields are a generic example and will not score.** The workflow scores four
 specific fields by their exact wording. To use the workflow as shipped, replace `FORM_FIELDS`
@@ -406,7 +406,7 @@ npm run dev          # http://localhost:5173
 ```
 
 Other commands: `npm run build` type checks and builds to `demo/dist`, and `npm run preview`
-serves that build. The demo's own file map is in [`demo/README.md`](demo/README.md).
+serves that build. The demo's own file map is in [`demo/DEMO-GUIDE.md`](demo/DEMO-GUIDE.md).
 
 Set `VITE_DEMO_MODE=true` to run the site with the agent and the form visible but switched
 off, sending nothing anywhere. That is how to host it with no backend behind it.
@@ -422,17 +422,17 @@ Ampersand/
 │   │   └── ampersand-workflow.json   The n8n export: agent chain and lead chain
 │   └── website/
 │       ├── index.html                The plain page: a chat box and a configurable form
-│       └── README.md                 Every option of the plain page
+│       └── GENERIC-WEBSITE-GUIDE.md  Every option of the plain page
 ├── demo/                             The Flowdeck site, built on the same workflow
 │   ├── src/                          The site's source
 │   ├── knowledge/
 │   │   └── flowdeck-knowledge-base.md
 │   ├── .env.example                  The demo's placeholders
-│   ├── README.md                     The demo's file map and run steps
+│   ├── DEMO-GUIDE.md                 The demo's file map and run steps
 │   └── TECHNICAL.md                  How the demo works underneath, in full
 ├── docs/
 │   └── images/                       The four screenshots used in this README
-└── README.md
+└── README.md                         This file, the main README
 ```
 
 ---
