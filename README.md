@@ -453,7 +453,7 @@ Ampersand/
 │   ├── DEMO-GUIDE.md                 The demo's file map and run steps
 │   └── TECHNICAL.md                  How the demo works underneath, in full
 ├── docs/
-│   └── images/                       The four screenshots used in this README
+│   └── images/                       The screenshots used in the docs
 └── README.md                         This file, the main README
 ```
 
