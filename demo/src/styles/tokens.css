@@ -1,0 +1,61 @@
+:root {
+  /* Base */
+  --ledger: #071411;
+  --ledger-2: #0a1a16;
+  --moss: #0f2621;
+  --moss-2: #143029;
+  --moss-3: #1a3a31;
+
+  /* Text */
+  --ice: #eef3ef;
+  --mist: #9db3a8;
+  --mist-2: #6e877c;
+
+  /* Accent: rationed */
+  --jade: #5fd3a9;
+  --jade-2: #3fb68c;
+  --jade-soft: rgba(95, 211, 169, 0.14);
+  --jade-line: rgba(95, 211, 169, 0.35);
+  --amber: #f0a83c;
+  --amber-soft: rgba(240, 168, 60, 0.16);
+
+  /* Brass: Gold tier only */
+  --brass: #d4a853;
+  --brass-2: #f1d690;
+  --brass-3: #8c6a2c;
+  --brass-soft: rgba(212, 168, 83, 0.14);
+
+  /* Paper: the form only */
+  --sheet: #eef1ec;
+  --sheet-2: #e3e8e1;
+  --sheet-3: #d3dad1;
+  --ink: #0b1f1a;
+  --ink-2: #3e574e;
+  --ink-3: #7b8f87;
+
+  /* Lines and light */
+  --line: rgba(238, 243, 239, 0.07);
+  --line-2: rgba(238, 243, 239, 0.13);
+  --edge: inset 0 1px 0 rgba(238, 243, 239, 0.09);
+
+  /* Type */
+  --font-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Helvetica Neue', Arial, sans-serif;
+  --font-hero: 'Instrument Serif', 'Times New Roman', Georgia, serif;
+  --font-body: 'Instrument Sans Variable', 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Motion */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast: 0.28s;
+  --t-med: 0.45s;
+  --t-slow: 0.8s;
+
+  /* Shape and layout */
+  --r-s: 8px;
+  --r-m: 14px;
+  --r-l: 24px;
+  --container: 1200px;
+  --gutter: clamp(20px, 5vw, 48px);
+  --section: clamp(96px, 11vw, 168px);
+  --nav-h: 72px;
+}
