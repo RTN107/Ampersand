@@ -1,0 +1,922 @@
+{
+  "name": "Ampersand",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "options": {
+          "systemMessage": "You are the assistant on Flowdeck's website. Flowdeck is operations software for logistics and 3PL companies.\n\nHOW TO ANSWER\n\nFor every question about Flowdeck's product, pricing, tiers, company, or how it compares to other tools, use the knowledge base tool first. Do not answer from general knowledge or assumptions about logistics software, and do not rely on this system prompt for product facts, it intentionally does not contain them.\n\nAnswer only from what the tool returns. Be specific and concrete, matching the level of detail in the retrieved content, not vague or generic.\n\nKeep answers conversational and tight, two to four sentences for most questions. This is a website chat widget, not a documentation page.\n\nPRICING RULES\n\nNever state a specific price, cost figure, currency amount, or estimate of any kind, no matter how the question is phrased, including \"roughly\", \"ballpark\", \"starting from\", or \"per user\". Flowdeck does not publish pricing.\n\nWhen asked about pricing or a specific tier, search the knowledge base for the tier details, answer using what it returns, and always end by directing them to the contact form for an exact quote.\n\nWHEN TO SUGGEST THE FORM\n\nAlways suggest it when asked about price, cost, or a quote.\n\nAlso suggest it, without being asked, when someone reveals a buying signal: naming their warehouse count or order volume, mentioning a timeline, saying they are on spreadsheets or comparing tools, or asking what onboarding or migration would look like for them specifically.\n\nSuggest it once per conversation naturally, not in every message. If already suggested, do not repeat unless they ask about pricing again.\n\nBOUNDARIES\n\nIf the knowledge base does not cover something, say so plainly and offer the form if sales could help. Never invent features, integrations, customer names, numbers, or capabilities not returned by the tool.\n\nDo not compare Flowdeck to specific named competitors. Speak only to differentiation the knowledge base actually states.\n\nNever mention the knowledge base, always state it plainly as any human being asked a question would\n\nNever use em dashes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -576,
+        -32
+      ],
+      "id": "57198ddc-5690-443a-b0bb-66d15ccb57b8",
+      "name": "Ampersand - RAG Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.session_id }}",
+        "tableName": "chat_messages",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -512,
+        192
+      ],
+      "id": "a49fc85a-2db0-4fbf-90fe-258559123a08",
+      "name": "Ampersand - Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "",
+          "name": "Supabase Postgres account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"reply\": $json.output } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -16,
+        -32
+      ],
+      "id": "e21e6fda-61ee-4821-8d23-b5d0070f5d22",
+      "name": "Ampersand - Agent Response"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent-chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -864,
+        -32
+      ],
+      "id": "9c69f71c-f5a1-45af-a582-cc82e44b91dc",
+      "name": "Ampersand - Agent Webhook",
+      "webhookId": "09e4c60f-b445-4e1d-ace3-49e1774f73ad",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -640,
+        192
+      ],
+      "id": "370543fb-8f72-46c3-becc-8b8f9fa3e73e",
+      "name": "Ampersand - Anthropic",
+      "credentials": {
+        "anthropicApi": {
+          "id": "",
+          "name": "Anthropic account (add your own API key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search Flowdeck's product, pricing, and company information to answer visitor questions accurately.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -384,
+        192
+      ],
+      "id": "19642aca-beed-402d-90f3-930d4951fce0",
+      "name": "Ampersand - Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        400
+      ],
+      "id": "b56434b8-0e44-46f8-b5c3-aee455912f96",
+      "name": "Ampersand - Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "",
+          "name": "Gemini account (add your own API key)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-capture",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        1728
+      ],
+      "id": "864068a2-6c4c-4ceb-8f5c-2dd42b11326a",
+      "name": "Ampersand - Lead Webhook",
+      "webhookId": "07de46cb-a525-410c-a709-dd6174964982"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\n\nconst warehouseScores = {\n  \"1\": 1,\n  \"2-5\": 3,\n  \"6-10\": 5,\n  \"10+\": 6\n};\n\nconst volumeScores = {\n  \"Under 500\": 1,\n  \"500 to 5000\": 3,\n  \"5000 to 20000\": 5,\n  \"20000+\": 6\n};\n\nconst toolingScores = {\n  \"Spreadsheets or manual\": 4,\n  \"Nothing\": 2,\n  \"Another platform\": 1\n};\n\nconst timelineScores = {\n  \"This month\": 4,\n  \"This quarter\": 2,\n  \"Just exploring\": 0\n};\n\nconst score =\n  (warehouseScores[body.warehouse_count] || 0) +\n  (volumeScores[body.order_volume] || 0) +\n  (toolingScores[body.current_tooling] || 0) +\n  (timelineScores[body.timeline] || 0);\n\nconst intent = score >= 12 ? \"high\" : \"low\";\n\nreturn {\n  json: {\n    ...body,\n    score,\n    intent\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        1728
+      ],
+      "id": "5ea83699-0a6e-414f-bd20-c3ec98f5aac5",
+      "name": "Ampersand - Score Lead"
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $json.name }}"
+            },
+            {
+              "fieldId": "company",
+              "fieldValue": "={{ $json.company }}"
+            },
+            {
+              "fieldId": "warehouse_count",
+              "fieldValue": "={{ $json.warehouse_count }}"
+            },
+            {
+              "fieldId": "order_volume",
+              "fieldValue": "={{ $json.order_volume }}"
+            },
+            {
+              "fieldId": "current_tooling",
+              "fieldValue": "={{ $json.current_tooling }}"
+            },
+            {
+              "fieldId": "timeline",
+              "fieldValue": "={{ $json.timeline }}"
+            },
+            {
+              "fieldId": "score",
+              "fieldValue": "={{ $json.score }}"
+            },
+            {
+              "fieldId": "intent",
+              "fieldValue": "={{ $json.intent }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "new"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        288,
+        1728
+      ],
+      "id": "a5270559-f9ce-4aea-9c05-a9866fe131a2",
+      "name": "Ampersand - Insert Lead",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.warehouse_count }}",
+                    "rightValue": "1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8cd27fce-b04d-4cd4-a792-6b58c3f7cbcc"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b67dcb4d-b7f2-481e-a4e5-a136d9b1203b",
+                    "leftValue": "={{ $json.warehouse_count }}",
+                    "rightValue": "2-5",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9b2afa83-e958-45d4-bede-d7f505b638f4",
+                    "leftValue": "={{ $json.warehouse_count }}",
+                    "rightValue": "6-10",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "27a4981e-c614-4edb-9472-33c65b70d95d",
+                    "leftValue": "={{ $json.warehouse_count }}",
+                    "rightValue": "10+",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        1856
+      ],
+      "id": "ea87fdf5-e589-411f-8d9e-88f29543d4ea",
+      "name": "Ampersand - Route by Warehouse Count"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "eb327b04-b3af-40f5-92b5-bfd5e54fcb73",
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "high",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        512,
+        1728
+      ],
+      "id": "f84c2b9a-d4fd-4dd6-81c4-c31027e784f0",
+      "name": "Ampersand - Check Intent"
+    },
+    {
+      "parameters": {
+        "fromEmail": "you@example.com",
+        "toEmail": "sales@example.com",
+        "subject": "=Subject: New Flowdeck Lead: {{ $json.company }} (Score: {{ $json.score }})",
+        "html": "=<p>New <strong>high-intent</strong> lead from Flowdeck's website.</p>\n\n<p>\n<strong>Company:</strong> {{ $json.company }}<br>\n<strong>Contact:</strong> {{ $json.name }} ({{ $json.email }})<br>\n<strong>Warehouses:</strong> {{ $json.warehouse_count }}<br>\n<strong>Monthly order volume:</strong> {{ $json.order_volume }}<br>\n<strong>Current tooling:</strong> {{ $json.current_tooling }}<br>\n<strong>Timeline:</strong> {{ $json.timeline }}<br>\n<strong>Score:</strong> {{ $json.score }}/20\n</p>\n\n<p>Small footprint on paper but the score says otherwise. Worth prioritizing.</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        1600
+      ],
+      "id": "abbe22cf-d6cf-4cac-9e58-252de1115d59",
+      "name": "Ampersand - Notify Owner (1 Warehouse)",
+      "webhookId": "ce3a3077-15b5-4848-8f08-94df16d04619",
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "you@example.com",
+        "toEmail": "sales@example.com",
+        "subject": "=New Flowdeck Lead: {{ $json.company }} (Score: {{ $json.score }})",
+        "html": "=<p>New <strong>high-intent</strong> lead from Flowdeck's website.</p>\n\n<p>\n<strong>Company:</strong> {{ $json.company }}<br>\n<strong>Contact:</strong> {{ $json.name }} ({{ $json.email }})<br>\n<strong>Warehouses:</strong> {{ $json.warehouse_count }}<br>\n<strong>Monthly order volume:</strong> {{ $json.order_volume }}<br>\n<strong>Current tooling:</strong> {{ $json.current_tooling }}<br>\n<strong>Timeline:</strong> {{ $json.timeline }}<br>\n<strong>Score:</strong> {{ $json.score }}/20\n</p>\n\n<p>Multiple warehouses usually means real coordination pain. Good candidate for a sales conversation.</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        1792
+      ],
+      "id": "b1246962-cccf-4899-a79e-3e34cb9bbe44",
+      "name": "Ampersand - Notify Owner (2-5 Warehouses)",
+      "webhookId": "ce3a3077-15b5-4848-8f08-94df16d04619",
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "you@example.com",
+        "toEmail": "sales@example.com",
+        "subject": "=New Flowdeck Lead: {{ $json.company }} (Score: {{ $json.score }})",
+        "html": "=<p>New <strong>high-intent</strong> lead from Flowdeck's website.</p>\n\n<p>\n<strong>Company:</strong> {{ $json.company }}<br>\n<strong>Contact:</strong> {{ $json.name }} ({{ $json.email }})<br>\n<strong>Warehouses:</strong> {{ $json.warehouse_count }}<br>\n<strong>Monthly order volume:</strong> {{ $json.order_volume }}<br>\n<strong>Current tooling:</strong> {{ $json.current_tooling }}<br>\n<strong>Timeline:</strong> {{ $json.timeline }}<br>\n<strong>Score:</strong> {{ $json.score }}/20\n</p>\n\n<p>Larger operation. Probably needs a proper onboarding conversation rather than a quick call.</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        1984
+      ],
+      "id": "760fac26-f443-4ee6-9a26-db672c8dd247",
+      "name": "Ampersand - Notify Owner (6-10 Warehouses)",
+      "webhookId": "ce3a3077-15b5-4848-8f08-94df16d04619",
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "you@example.com",
+        "toEmail": "sales@example.com",
+        "subject": "=New Flowdeck Lead: {{ $json.company }} (Score: {{ $json.score }})",
+        "html": "=<p>New <strong>high-intent</strong> lead from Flowdeck's website.</p>\n\n<p>\n<strong>Company:</strong> {{ $json.company }}<br>\n<strong>Contact:</strong> {{ $json.name }} ({{ $json.email }})<br>\n<strong>Warehouses:</strong> {{ $json.warehouse_count }}<br>\n<strong>Monthly order volume:</strong> {{ $json.order_volume }}<br>\n<strong>Current tooling:</strong> {{ $json.current_tooling }}<br>\n<strong>Timeline:</strong> {{ $json.timeline }}<br>\n<strong>Score:</strong> {{ $json.score }}/20\n</p>\n\n<p>This is a <strong>Gold-tier lead</strong>, the largest segment. Should get a dedicated account manager conversation directly.</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        960,
+        2176
+      ],
+      "id": "1f61f0c3-1556-4d29-8b7a-1e080312436b",
+      "name": "Ampersand - Notify Owner (10+ Warehouses)",
+      "webhookId": "ce3a3077-15b5-4848-8f08-94df16d04619",
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Thanks for reaching out! Our team will be in touch soon.\" } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1408,
+        1808
+      ],
+      "id": "22c3dae9-8b7a-469f-ae19-684ad198f438",
+      "name": "Ampersand - Lead Response"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Ampersand - Insert Lead').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "email_sent",
+              "fieldValue": "true"
+            },
+            {
+              "fieldId": "assigned_owner",
+              "fieldValue": "Owner A"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        1600
+      ],
+      "id": "308c6d9d-cdf1-4713-a287-e89a1a486fc4",
+      "name": "Ampersand - Update Lead (1 Warehouse)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Ampersand - Insert Lead').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "email_sent",
+              "fieldValue": "true"
+            },
+            {
+              "fieldId": "assigned_owner",
+              "fieldValue": "Owner B"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        1792
+      ],
+      "id": "1446ceac-045b-4aaf-bfaf-7e16664618cf",
+      "name": "Ampersand - Update Lead (2-5 Warehouses)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Ampersand - Insert Lead').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "email_sent",
+              "fieldValue": "true"
+            },
+            {
+              "fieldId": "assigned_owner",
+              "fieldValue": "Owner C"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        1984
+      ],
+      "id": "1aee447a-0558-4b05-b01c-21bbc811eca2",
+      "name": "Ampersand - Update Lead (6-10 Warehouses)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account (add your own)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Ampersand - Insert Lead').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "email_sent",
+              "fieldValue": "true"
+            },
+            {
+              "fieldId": "assigned_owner",
+              "fieldValue": "Owner D"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        2176
+      ],
+      "id": "87cad001-cdfe-4a15-9781-149812021e8e",
+      "name": "Ampersand - Update Lead (10+ Warehouses)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "",
+          "name": "Supabase account (add your own)"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ampersand - Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Ampersand - RAG Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - RAG Agent": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Agent Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Agent Webhook": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - RAG Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Anthropic": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ampersand - RAG Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ampersand - RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Ampersand - Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Score Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Score Lead": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Insert Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Insert Lead": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Check Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Check Intent": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Route by Warehouse Count",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ampersand - Lead Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Route by Warehouse Count": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Notify Owner (1 Warehouse)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ampersand - Notify Owner (2-5 Warehouses)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ampersand - Notify Owner (6-10 Warehouses)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ampersand - Notify Owner (10+ Warehouses)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Notify Owner (10+ Warehouses)": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Update Lead (10+ Warehouses)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Notify Owner (1 Warehouse)": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Update Lead (1 Warehouse)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Notify Owner (2-5 Warehouses)": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Update Lead (2-5 Warehouses)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Notify Owner (6-10 Warehouses)": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Update Lead (6-10 Warehouses)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Update Lead (1 Warehouse)": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Lead Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Update Lead (2-5 Warehouses)": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Lead Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Update Lead (6-10 Warehouses)": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Lead Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ampersand - Update Lead (10+ Warehouses)": {
+      "main": [
+        [
+          {
+            "node": "Ampersand - Lead Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "",
+  "tags": []
+}

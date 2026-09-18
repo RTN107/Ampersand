@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Website starter template</title>
+
+<!--
+=====================================================================
+READ THIS FIRST: WHAT YOU MUST CHANGE TO MAKE THIS WORK
+=====================================================================
+
+This is a single static file. No build step, no dependencies. Open it in
+a browser or upload it to any static host. Everything you need to edit is
+in the first <script> block near the bottom of this file, under the
+heading "SETUP".
+
+REQUIRED
+
+1. AGENT_CHAT_URL
+   Replace "PASTE_YOUR_AGENT_CHAT_WEBHOOK_URL_HERE" with the full URL of
+   your AI agent chat webhook. Until you do, the chat panel shows a setup
+   message instead of sending anything.
+
+2. LEAD_CAPTURE_URL
+   Replace "PASTE_YOUR_LEAD_CAPTURE_WEBHOOK_URL_HERE" with the full URL of
+   your lead capture webhook. Until you do, the form shows a setup message
+   on submit instead of sending anything.
+
+3. FORM_FIELDS
+   The contact form is built entirely from the FORM_FIELDS array. Edit
+   that array to add, remove, rename, or retype fields. The keys your
+   backend receives are the "id" values, so make them match what your
+   backend expects. No other code needs to change.
+
+4. Backend CORS
+   If this file is hosted on a different origin than your webhooks (which
+   is almost always the case, including when opened from disk), your
+   webhook server must allow cross-origin POST requests with a JSON
+   content type. Configure that on the backend, not in this file.
+
+OPTIONAL
+
+5. TEXT
+   Headings, button labels, and placeholder text shown on the page. Edit
+   the TEXT object to change wording. Nothing else depends on it.
+
+6. Page title and styling
+   Change the <title> tag above and the CSS variables at the top of the
+   <style> block (colors, radius, font) to reskin the page.
+
+REQUEST AND RESPONSE FORMATS
+
+Chat, POST to AGENT_CHAT_URL, JSON body:
+  { "message": "text the visitor typed", "session_id": "uuid" }
+Expected JSON response:
+  { "reply": "text to show in the conversation" }
+
+Lead capture, POST to LEAD_CAPTURE_URL, JSON body:
+  a flat object with one key per form field id, for example
+  { "name": "...", "email": "...", "message": "..." }
+Expected JSON response:
+  { "success": true, "message": "text to show the visitor" }
+=====================================================================
+-->
+
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --text: #1c2430;
+    --text-muted: #5b6675;
+    --border: #d5dae1;
+    --accent: #1f5fbf;
+    --accent-hover: #184c9a;
+    --accent-text: #ffffff;
+    --error: #b42318;
+    --error-bg: #fdecea;
+    --success: #14663a;
+    --success-bg: #e7f5ec;
+    --bubble-user: #e8eef8;
+    --bubble-agent: #f0f2f5;
+    --radius: 8px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 16px 48px;
+  }
+
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { margin: 0 0 6px; font-size: 1.75rem; line-height: 1.25; }
+  .page-header p { margin: 0; color: var(--text-muted); max-width: 60ch; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .panel h2 { margin: 0 0 4px; font-size: 1.125rem; }
+  .panel .hint { margin: 0 0 16px; color: var(--text-muted); font-size: 0.9375rem; }
+
+  .banner {
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 0.9375rem;
+    margin-bottom: 12px;
+  }
+  .banner[hidden] { display: none; }
+  .banner.error { background: var(--error-bg); color: var(--error); border: 1px solid #f1b9b3; }
+  .banner.success { background: var(--success-bg); color: var(--success); border: 1px solid #a9d9bb; }
+  .banner.info { background: var(--bubble-agent); color: var(--text); border: 1px solid var(--border); }
+
+  /* Chat */
+  .chat-log {
+    height: 340px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    background: #fbfbfc;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .msg {
+    max-width: 85%;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .msg.user { align-self: flex-end; background: var(--bubble-user); }
+  .msg.agent { align-self: flex-start; background: var(--bubble-agent); }
+  .msg.error { align-self: flex-start; background: var(--error-bg); color: var(--error); }
+  .msg.pending { align-self: flex-start; background: var(--bubble-agent); color: var(--text-muted); }
+
+  .chat-form { display: flex; gap: 8px; margin-top: 12px; }
+  .chat-form input { flex: 1; min-width: 0; }
+
+  /* Fields */
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-weight: 600; font-size: 0.9375rem; margin-bottom: 4px; }
+  .field .req { color: var(--error); margin-left: 2px; }
+  .field .field-error { color: var(--error); font-size: 0.875rem; margin-top: 4px; min-height: 0; }
+  .field .field-error:empty { display: none; }
+  .field.checkbox label { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+  .field.checkbox input { width: auto; }
+
+  input, select, textarea {
+    width: 100%;
+    font: inherit;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 10px;
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
+    border-color: var(--error);
+  }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    background: var(--accent);
+    color: var(--accent-text);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 9px 16px;
+    cursor: pointer;
+  }
+  button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  :focus-visible {
+    outline: 3px solid #7fb0ff;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    .chat-log { height: 280px; }
+  }
+
+  @media (max-width: 420px) {
+    .panel { padding: 16px; }
+    .chat-form { flex-direction: column; }
+    .chat-form button { width: 100%; }
+  }
+</style>
+</head>
+
+<body>
+<div class="page">
+  <header class="page-header">
+    <h1 id="page-title"></h1>
+    <p id="page-intro"></p>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="chat-heading">
+      <h2 id="chat-heading"></h2>
+      <p class="hint" id="chat-hint"></p>
+      <div id="chat-setup" class="banner info" hidden></div>
+      <div id="chat-log" class="chat-log" role="log" aria-live="polite" aria-label="Conversation"></div>
+      <form id="chat-form" class="chat-form" autocomplete="off" novalidate>
+        <input id="chat-input" type="text" aria-label="Your message" maxlength="2000">
+        <button id="chat-send" type="submit"></button>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="lead-heading">
+      <h2 id="lead-heading"></h2>
+      <p class="hint" id="lead-hint"></p>
+      <div id="lead-banner" class="banner" role="status" hidden></div>
+      <form id="lead-form" novalidate></form>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ===================================================================
+   SETUP
+   Everything a person needs to edit is in this section.
+   =================================================================== */
+
+/* Endpoint 1 of 2. Full URL of your AI agent chat webhook.
+   Leave the placeholder text as is until you have a real URL. */
+const AGENT_CHAT_URL = "PASTE_YOUR_AGENT_CHAT_WEBHOOK_URL_HERE";
+
+/* Endpoint 2 of 2. Full URL of your lead capture webhook.
+   Leave the placeholder text as is until you have a real URL. */
+const LEAD_CAPTURE_URL = "PASTE_YOUR_LEAD_CAPTURE_WEBHOOK_URL_HERE";
+
+/* Form fields. The form on the page is generated from this array.
+
+   To ADD a field: copy any line below and change it.
+   To REMOVE a field: delete its line.
+   To RENAME a field: change "label" (what the visitor sees). Change "id"
+     only if your backend expects a different key name, because "id" is
+     the key in the JSON sent to LEAD_CAPTURE_URL.
+   To RETYPE a field: change "type" to one of:
+     "text", "email", "tel", "url", "number", "textarea", "select",
+     "checkbox"
+
+   Supported properties for each entry:
+     id          Required. Unique. Used as the JSON key and the element id.
+     label       Required. Text shown above the input.
+     type        Required. See the list above.
+     required    Optional. true or false. Default false.
+     placeholder Optional. Hint text inside the input.
+     options     Only for type "select". An array of strings, for example
+                 ["Option one", "Option two"].
+
+   Notes: a checkbox is sent as true or false. A number field is sent as a
+   number. Every other type is sent as a trimmed string. Fields of type
+   "email" are checked for a valid format before sending. */
+const FORM_FIELDS = [
+  { id: "name",    label: "Name",    type: "text",     required: true,  placeholder: "Your name" },
+  { id: "email",   label: "Email",   type: "email",    required: true,  placeholder: "you@example.com" },
+  { id: "message", label: "Message", type: "textarea", required: false, placeholder: "How can we help?" }
+];
+
+/* Optional. Wording shown on the page. Change freely. */
+const TEXT = {
+  pageTitle: "Get in touch",
+  pageIntro: "Ask a question in the chat, or send us your details and we will follow up.",
+  chatHeading: "Ask a question",
+  chatHint: "Type a message and press Send.",
+  chatInputPlaceholder: "Type your message",
+  chatSend: "Send",
+  chatSending: "Sending",
+  chatWaiting: "Waiting for a reply",
+  chatNotConfigured: "The chat is not connected yet. Set AGENT_CHAT_URL at the top of the script section in this file.",
+  chatError: "The message could not be sent, or the reply was not in the expected format. Please try again.",
+  leadHeading: "Contact form",
+  leadHint: "Fields marked with * are required.",
+  leadSubmit: "Submit",
+  leadSubmitting: "Submitting",
+  leadNotConfigured: "The form is not connected yet. Set LEAD_CAPTURE_URL at the top of the script section in this file.",
+  leadError: "The form could not be submitted, or the reply was not in the expected format. Please try again.",
+  requiredError: "This field is required.",
+  emailError: "Enter a valid email address."
+};
+
+/* Request timeout in milliseconds for both endpoints. */
+const REQUEST_TIMEOUT_MS = 60000;
+
+/* ===================================================================
+   END OF SETUP. Nothing below needs editing for a basic setup.
+   =================================================================== */
+
+(function () {
+  "use strict";
+
+  function isPlaceholder(url) {
+    return typeof url !== "string" || url.trim() === "" || url.indexOf("PASTE_YOUR_") === 0;
+  }
+
+  // One id per page load. Held in memory only, never stored.
+  function makeSessionId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return window.crypto.randomUUID();
+    }
+    var bytes = new Uint8Array(16);
+    if (window.crypto && window.crypto.getRandomValues) {
+      window.crypto.getRandomValues(bytes);
+    } else {
+      for (var i = 0; i < 16; i++) bytes[i] = Math.floor(Math.random() * 256);
+    }
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    var hex = Array.prototype.map.call(bytes, function (b) {
+      return ("0" + b.toString(16)).slice(-2);
+    }).join("");
+    return hex.slice(0, 8) + "-" + hex.slice(8, 12) + "-" + hex.slice(12, 16) + "-" +
+           hex.slice(16, 20) + "-" + hex.slice(20);
+  }
+  var SESSION_ID = makeSessionId();
+
+  function postJson(url, payload) {
+    var controller = new AbortController();
+    var timer = setTimeout(function () { controller.abort(); }, REQUEST_TIMEOUT_MS);
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    }).then(function (res) {
+      clearTimeout(timer);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }, function (err) {
+      clearTimeout(timer);
+      throw err;
+    });
+  }
+
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------- Static text ---------- */
+  $("page-title").textContent = TEXT.pageTitle;
+  $("page-intro").textContent = TEXT.pageIntro;
+  $("chat-heading").textContent = TEXT.chatHeading;
+  $("chat-hint").textContent = TEXT.chatHint;
+  $("chat-input").placeholder = TEXT.chatInputPlaceholder;
+  $("chat-send").textContent = TEXT.chatSend;
+  $("lead-heading").textContent = TEXT.leadHeading;
+  $("lead-hint").textContent = TEXT.leadHint;
+
+  /* ---------- Chat ---------- */
+  var chatLog = $("chat-log");
+  var chatForm = $("chat-form");
+  var chatInput = $("chat-input");
+  var chatSend = $("chat-send");
+  var chatSetup = $("chat-setup");
+  var chatBusy = false;
+
+  if (isPlaceholder(AGENT_CHAT_URL)) {
+    chatSetup.textContent = TEXT.chatNotConfigured;
+    chatSetup.hidden = false;
+  }
+
+  function addMessage(kind, text) {
+    var el = document.createElement("div");
+    el.className = "msg " + kind;
+    el.textContent = text;
+    chatLog.appendChild(el);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return el;
+  }
+
+  chatForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    if (chatBusy) return;
+
+    var text = chatInput.value.trim();
+    if (!text) return;
+
+    if (isPlaceholder(AGENT_CHAT_URL)) {
+      chatSetup.textContent = TEXT.chatNotConfigured;
+      chatSetup.hidden = false;
+      return;
+    }
+
+    addMessage("user", text);
+    chatInput.value = "";
+    chatBusy = true;
+    chatSend.disabled = true;
+    chatSend.textContent = TEXT.chatSending;
+    var pending = addMessage("pending", TEXT.chatWaiting);
+
+    postJson(AGENT_CHAT_URL, { message: text, session_id: SESSION_ID })
+      .then(function (data) {
+        if (!data || typeof data.reply !== "string") throw new Error("Malformed response");
+        pending.remove();
+        addMessage("agent", data.reply);
+      })
+      .catch(function () {
+        pending.remove();
+        addMessage("error", TEXT.chatError);
+      })
+      .then(function () {
+        chatBusy = false;
+        chatSend.disabled = false;
+        chatSend.textContent = TEXT.chatSend;
+        chatInput.focus();
+      });
+  });
+
+  /* ---------- Lead form ---------- */
+  var leadForm = $("lead-form");
+  var leadBanner = $("lead-banner");
+  var leadBusy = false;
+  var EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function showBanner(kind, text) {
+    leadBanner.className = "banner " + kind;
+    leadBanner.textContent = text;
+    leadBanner.hidden = false;
+  }
+
+  function buildField(field) {
+    var wrap = document.createElement("div");
+    wrap.className = "field" + (field.type === "checkbox" ? " checkbox" : "");
+
+    var errId = "err-" + field.id;
+    var input;
+
+    if (field.type === "textarea") {
+      input = document.createElement("textarea");
+    } else if (field.type === "select") {
+      input = document.createElement("select");
+      var blank = document.createElement("option");
+      blank.value = "";
+      blank.textContent = field.placeholder || "Select an option";
+      input.appendChild(blank);
+      (field.options || []).forEach(function (opt) {
+        var o = document.createElement("option");
+        o.value = String(opt);
+        o.textContent = String(opt);
+        input.appendChild(o);
+      });
+    } else {
+      input = document.createElement("input");
+      input.type = field.type || "text";
+    }
+
+    input.id = "field-" + field.id;
+    input.name = field.id;
+    input.setAttribute("aria-describedby", errId);
+    if (field.placeholder && field.type !== "select" && field.type !== "checkbox") {
+      input.placeholder = field.placeholder;
+    }
+    if (field.type === "email") input.autocomplete = "email";
+
+    var label = document.createElement("label");
+    label.htmlFor = input.id;
+
+    if (field.type === "checkbox") {
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(field.label));
+      if (field.required) {
+        var star = document.createElement("span");
+        star.className = "req";
+        star.textContent = "*";
+        label.appendChild(star);
+      }
+      wrap.appendChild(label);
+    } else {
+      label.appendChild(document.createTextNode(field.label));
+      if (field.required) {
+        var star2 = document.createElement("span");
+        star2.className = "req";
+        star2.textContent = "*";
+        label.appendChild(star2);
+      }
+      wrap.appendChild(label);
+      wrap.appendChild(input);
+    }
+
+    var err = document.createElement("div");
+    err.className = "field-error";
+    err.id = errId;
+    wrap.appendChild(err);
+
+    return wrap;
+  }
+
+  FORM_FIELDS.forEach(function (field) {
+    leadForm.appendChild(buildField(field));
+  });
+
+  var submitBtn = document.createElement("button");
+  submitBtn.type = "submit";
+  submitBtn.textContent = TEXT.leadSubmit;
+  leadForm.appendChild(submitBtn);
+
+  function readValue(field) {
+    var el = $("field-" + field.id);
+    if (field.type === "checkbox") return el.checked;
+    var raw = el.value.trim();
+    if (field.type === "number") return raw === "" ? "" : Number(raw);
+    return raw;
+  }
+
+  function setFieldError(field, message) {
+    var el = $("field-" + field.id);
+    var err = $("err-" + field.id);
+    err.textContent = message || "";
+    if (message) el.setAttribute("aria-invalid", "true");
+    else el.removeAttribute("aria-invalid");
+  }
+
+  function validate() {
+    var firstBad = null;
+    FORM_FIELDS.forEach(function (field) {
+      var value = readValue(field);
+      var message = "";
+      var empty = field.type === "checkbox" ? value === false : value === "";
+      if (field.required && empty) {
+        message = TEXT.requiredError;
+      } else if (field.type === "email" && !empty && !EMAIL_PATTERN.test(value)) {
+        message = TEXT.emailError;
+      }
+      setFieldError(field, message);
+      if (message && !firstBad) firstBad = field;
+    });
+    return firstBad;
+  }
+
+  leadForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    if (leadBusy) return;
+    leadBanner.hidden = true;
+
+    if (isPlaceholder(LEAD_CAPTURE_URL)) {
+      showBanner("error", TEXT.leadNotConfigured);
+      return;
+    }
+
+    var firstBad = validate();
+    if (firstBad) {
+      $("field-" + firstBad.id).focus();
+      return;
+    }
+
+    var payload = {};
+    FORM_FIELDS.forEach(function (field) { payload[field.id] = readValue(field); });
+
+    leadBusy = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = TEXT.leadSubmitting;
+
+    postJson(LEAD_CAPTURE_URL, payload)
+      .then(function (data) {
+        if (!data || typeof data.success !== "boolean" || typeof data.message !== "string") {
+          throw new Error("Malformed response");
+        }
+        if (data.success) {
+          showBanner("success", data.message);
+          leadForm.reset();
+        } else {
+          showBanner("error", data.message);
+        }
+      })
+      .catch(function () {
+        showBanner("error", TEXT.leadError);
+      })
+      .then(function () {
+        leadBusy = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = TEXT.leadSubmit;
+      });
+  });
+})();
+</script>
+</body>
+</html>
