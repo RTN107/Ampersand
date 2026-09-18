@@ -71,9 +71,6 @@ The reconciliation module in particular is rare. Most competitors, including the
 **How long does onboarding take?**
 Most teams are live within two to three weeks, including migrating existing data from spreadsheets or another platform. Scale and Gold customers get a dedicated onboarding specialist for this.
 
-**What does Flowdeck integrate with?**
-Flowdeck connects to Shopify, WooCommerce, QuickBooks, Xero, and major carriers including FedEx, UPS, DHL, and Delhivery. A general API and webhook support cover anything custom.
-
 **Is my data secure?**
 Flowdeck is SOC 2 Type II compliant, with data encrypted at rest and in transit. Scale and Gold plans include a 99.9 percent uptime SLA.
 
