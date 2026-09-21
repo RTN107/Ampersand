@@ -41,9 +41,10 @@ their own.
 
 ## 2. Assembly and embedding
 
-Each chunk is embedded with Google's Gemini embedding model, `gemini-embedding-001`, configured
-to output 3072-dimensional vectors. That is the model's native output size, and there is no way
-to force a smaller dimensionality through the tooling used.
+Each chunk is embedded with the embedding model named on the workflow's embeddings node. The
+vectors have that model's native output size, and the `embedding` column and `match_documents`
+must be created with the same size. There is no way to force a smaller size through the tooling
+used.
 
 Each chunk is then inserted into a Supabase table together with its embedding, its source
 filename and its chunk index.
@@ -62,7 +63,7 @@ Stores the knowledge base chunks.
 |---|---|---|
 | `id` | uuid | Row identifier |
 | `content` | text | The chunk itself |
-| `embedding` | vector, 3072 dimensions | The chunk's embedding |
+| `embedding` | vector, sized to your embedding model | The chunk's embedding |
 | `source_file` | text | The file the chunk came from |
 | `chunk_index` | int | The chunk's position in that file |
 | `created_at` | timestamptz | When the row was created |
@@ -73,7 +74,7 @@ filter is required by the call signature of the n8n Supabase Vector Store node. 
 this build, because there is no per-chunk metadata to filter on.
 
 <p align="center">
-  <img src="../docs/images/supabase-documents.png" alt="The Supabase table editor open on the documents table, showing knowledge base chunks as rows with their text content, a 3072 dimension embedding vector, the source file name and the chunk index" width="820" />
+  <img src="../docs/images/supabase-documents.png" alt="The Supabase table editor open on the documents table, showing knowledge base chunks as rows with their text content, an embedding vector, the source file name and the chunk index" width="820" />
 </p>
 
 ### `chat_messages`
@@ -119,13 +120,13 @@ Front end code: [`src/components/AgentContext.tsx`](src/components/AgentContext.
 `Agent Response`.
 
 1. A **webhook** receives an incoming message and a `session_id`.
-2. An **AI Agent** node, using Claude through the Anthropic Chat Model, handles it. Three
+2. An **AI Agent** node, using a chat model node, handles it. Three
    things are attached to the agent:
-   - **Chat Model:** Anthropic.
+   - **Chat Model:** the Anthropic chat node, with a model id you set.
    - **Memory:** Postgres Chat Memory, reading and writing the `chat_messages` table keyed by
      `session_id`.
    - **Tool:** a Supabase Vector Store node in "retrieve as tool" mode, backed by an Embeddings
-     Google Gemini node using the same `gemini-embedding-001` model, querying the `documents`
+     Google Gemini node using the same embedding model as the ingestion step, querying the `documents`
      table through `match_documents`.
 3. The response goes back to the front end as `{ "reply": "..." }`.
 

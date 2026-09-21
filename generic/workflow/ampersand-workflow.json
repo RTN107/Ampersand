@@ -77,9 +77,8 @@
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "claude-sonnet-5",
-          "mode": "list",
-          "cachedResultName": "Claude Sonnet 5"
+          "value": "PASTE_YOUR_CHAT_MODEL_ID_HERE",
+          "mode": "id"
         },
         "options": {}
       },
@@ -127,7 +126,7 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemini-embedding-001"
+        "modelName": "PASTE_YOUR_EMBEDDING_MODEL_HERE"
       },
       "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
       "typeVersion": 1,

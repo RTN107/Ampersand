@@ -16,8 +16,6 @@
 <p align="center">
   <img alt="n8n" src="https://img.shields.io/badge/n8n-EA4B71?logo=n8n&logoColor=white" />
   <img alt="Supabase" src="https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white" />
-  <img alt="Anthropic Claude" src="https://img.shields.io/badge/Anthropic-Claude-D97757" />
-  <img alt="Google Gemini embeddings" src="https://img.shields.io/badge/Google-Gemini%20embeddings-8E75B2?logo=googlegemini&logoColor=white" />
   <img alt="React" src="https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" />
   <img alt="Vite" src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white" />
@@ -84,8 +82,8 @@ Everything below is for connecting them to a backend of your own.
 |---|---|
 | [n8n](https://n8n.io/) | Runs the workflow. Self-hosted, Docker and n8n Cloud all work, and `npx n8n` starts a local one at http://localhost:5678 |
 | A Supabase project | Holds the knowledge base vectors, the chat history and the leads |
-| An AI API key | The agent's model |
-| A Google Gemini API key | Embeds each question, so it can be matched against your knowledge base |
+| A chat model API key | The agent's model. The export uses n8n's Anthropic chat node, so that is the credential type to connect. Swap the node to use another provider |
+| An embedding model API key | Embeds each question, so it can be matched against your knowledge base. The export uses n8n's Google Gemini embeddings node, and can be swapped the same way |
 | An SMTP account | Sends the lead notification emails |
 | A knowledge base of your own | The documents the agent answers from |
 | Node.js 20.19+ or 22.12+ | The demo site only. The plain page needs nothing but a browser |
@@ -145,11 +143,18 @@ and save.
 
 | Credential type | Nodes | What to add |
 |---|---|---|
-| Anthropic | `Ampersand - Anthropic` | Your Anthropic API key |
-| Google Gemini (PaLM) API | `Ampersand - Embeddings Google Gemini` | Your Gemini API key |
+| Anthropic | `Ampersand - Anthropic` | An API key for your chat model provider |
+| Google Gemini (PaLM) API | `Ampersand - Embeddings Google Gemini` | An API key for your embedding model provider |
 | Supabase API | `Ampersand - Vector Store`, `Ampersand - Insert Lead`, and the four `Ampersand - Update Lead` nodes | Your Supabase project credentials |
 | Postgres | `Ampersand - Chat Memory` | A connection to your Supabase database |
 | SMTP | The four `Ampersand - Notify Owner` nodes | Your SMTP login |
+
+Then set the two model placeholders. The export names no model on purpose.
+
+| Field | Placeholder | Put here |
+|---|---|---|
+| Model on `Ampersand - Anthropic` | `PASTE_YOUR_CHAT_MODEL_ID_HERE` | The id of a chat model your account can call |
+| Model name on `Ampersand - Embeddings Google Gemini` | `PASTE_YOUR_EMBEDDING_MODEL_HERE` | The embedding model you used for your knowledge base |
 
 ### 3.5 Set the email addresses
 
@@ -211,7 +216,7 @@ This repository contains no secrets. Yours live in three places, none of them co
 
 | Where | What it holds | How it gets there |
 |---|---|---|
-| n8n's credential store | The Anthropic key, Gemini key, Supabase and Postgres credentials, SMTP login | You add them in n8n in step 3.4 |
+| n8n's credential store | The chat model key, embedding model key, Supabase and Postgres credentials, SMTP login | You add them in n8n in step 3.4 |
 | `demo/.env` | The demo's two webhook URLs | You copy `demo/.env.example` to `demo/.env`. It is git-ignored |
 | `generic/website/index.html` | The plain page's two webhook URLs | You edit the two constants in step 3.7 |
 
@@ -223,6 +228,8 @@ Every placeholder in the repository, in one table:
 | Placeholder | File | Replace with |
 |---|---|---|
 | Credentials named like `... (add your own)`, on 13 nodes | `generic/workflow/ampersand-workflow.json`, once imported | Your own credentials, step 3.4 |
+| `PASTE_YOUR_CHAT_MODEL_ID_HERE` | Same file, the `Ampersand - Anthropic` node | A chat model id your account can call, step 3.4 |
+| `PASTE_YOUR_EMBEDDING_MODEL_HERE` | Same file, the `Ampersand - Embeddings Google Gemini` node | The embedding model your knowledge base was embedded with, step 3.4 |
 | `you@example.com` on four nodes | Same file, the four `Ampersand - Notify Owner` nodes | Your sending address |
 | `sales@example.com` on four nodes | Same file, the same four nodes | Your recipient |
 | `PASTE_YOUR_AGENT_CHAT_WEBHOOK_URL_HERE` | `generic/website/index.html`, constant `AGENT_CHAT_URL` | Your agent webhook URL |
@@ -280,7 +287,8 @@ touches the form, the right hand column says what to change in the page or the d
 | Change the owner label saved on the lead | The four `Ampersand - Update Lead` nodes (`Owner A` to `Owner D`) | Nothing in the page |
 | Change what the agent says or refuses to say | The system prompt in `Ampersand - RAG Agent`. It currently names Flowdeck | Nothing in the page |
 | Change what the agent's search tool is described as | The tool description in `Ampersand - Vector Store` | Nothing in the page |
-| Change the model | `Ampersand - Anthropic`, which needs a model your Anthropic account can call | Nothing in the page |
+| Change the chat model | The model field on `Ampersand - Anthropic`, which needs a model your account can call | Nothing in the page |
+| Change the embedding model | The model field on `Ampersand - Embeddings Google Gemini` | Re-embed your `documents` chunks with the same model, and match the vector size of the `embedding` column and `match_documents` |
 | Change the page's wording or look | Nothing in n8n | The `TEXT` object and the CSS variables in `index.html` |
 
 The routing rule as shipped sends a high-intent lead to one of four branches by warehouse
@@ -355,7 +363,7 @@ its vector store. The second question, "does that apply to smaller operators too
 sense because the agent remembers the answer before it.
 
 <p align="center">
-  <img src="docs/images/agent-in-action.png" alt="A live run of the agent. On the left, the Ask Flowdeck AI panel showing an answer about billing reconciliation, the follow-up question 'Does that apply to smaller operators too, or just the bigger accounts?' and the agent's reply. On the right, the n8n canvas for the workflow named Ampersand with the agent webhook, the RAG agent, the Anthropic model, the chat memory, the vector store and the Gemini embeddings all showing green ticks" width="820" />
+  <img src="docs/images/agent-in-action.png" alt="A live run of the agent. On the left, the Ask Flowdeck AI panel showing an answer about billing reconciliation, the follow-up question 'Does that apply to smaller operators too, or just the bigger accounts?' and the agent's reply. On the right, the n8n canvas for the workflow named Ampersand with the agent webhook, the RAG agent, the chat model, the chat memory, the vector store and the embeddings all showing green ticks" width="820" />
 </p>
 
 The files behind it:
@@ -404,7 +412,7 @@ node, the insert, the intent check, the switch by warehouse count and the respon
 </p>
 
 <p align="center">
-  <img src="docs/images/automation.png" alt="The n8n canvas for the workflow named Ampersand. On the left, the agent chain: a webhook into a RAG agent with an Anthropic model, chat memory and a vector store with Gemini embeddings, into a response. On the right, the lead chain: a webhook, a scoring code node, an insert, an intent check, a switch by warehouse count into four notify and update branches, and a response" width="820" />
+  <img src="docs/images/automation.png" alt="The n8n canvas for the workflow named Ampersand. On the left, the agent chain: a webhook into a RAG agent with a chat model, chat memory and a vector store with embeddings, into a response. On the right, the lead chain: a webhook, a scoring code node, an insert, an intent check, a switch by warehouse count into four notify and update branches, and a response" width="820" />
 </p>
 
 The canvas above is the whole workflow. The agent chain is on the left and the lead chain on

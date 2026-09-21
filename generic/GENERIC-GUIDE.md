@@ -185,10 +185,10 @@ Answers a chat message from your knowledge base.
 |---|---|
 | `Ampersand - Agent Webhook` | Receives the `POST` on the path `agent-chat` |
 | `Ampersand - RAG Agent` | The AI Agent. Takes `message` from the request, and has the three nodes below attached |
-| `Ampersand - Anthropic` | The chat model. Set to `claude-sonnet-5` |
+| `Ampersand - Anthropic` | The chat model. Its model id is the placeholder `PASTE_YOUR_CHAT_MODEL_ID_HERE` |
 | `Ampersand - Chat Memory` | Postgres chat memory in the table `chat_messages`, keyed by `session_id`, with a context window of 10 |
 | `Ampersand - Vector Store` | Supabase vector store in "retrieve as tool" mode, reading the table `documents`. This is how the agent searches your knowledge base |
-| `Ampersand - Embeddings Google Gemini` | Embeds the question with `models/gemini-embedding-001`, so it can be matched against the stored chunks |
+| `Ampersand - Embeddings Google Gemini` | Embeds the question with the model named by `PASTE_YOUR_EMBEDDING_MODEL_HERE`, so it can be matched against the stored chunks |
 | `Ampersand - Agent Response` | Returns `{ "reply": ... }` to the page |
 
 The chunks in `documents` must have been embedded with the same model as the Embeddings node, or
@@ -243,6 +243,8 @@ Creating these tables is up to you. The demo's version of all three is described
 | Placeholder | Nodes | Replace with |
 |---|---|---|
 | Credentials named like `... (add your own)`, with an empty id | Chat Memory, Anthropic, Vector Store, Embeddings Google Gemini, Insert Lead, the four Update Lead nodes, the four Notify Owner nodes (13 nodes) | Your own credential of that type |
+| `PASTE_YOUR_CHAT_MODEL_ID_HERE` as the model | The Anthropic node | A chat model id your account can call |
+| `PASTE_YOUR_EMBEDDING_MODEL_HERE` as the model name | The Embeddings Google Gemini node | The embedding model your knowledge base was embedded with |
 | `you@example.com` in From Email | The four Notify Owner nodes | The address you send from |
 | `sales@example.com` in To Email | The four Notify Owner nodes | The recipient for that branch |
 
