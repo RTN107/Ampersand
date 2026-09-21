@@ -452,7 +452,10 @@ Ampersand/
 │   ├── workflow/
 │   │   └── ampersand-workflow.json   The n8n export: agent chain and lead chain
 │   └── website/
-│       └── index.html                The plain page: a chat box and a configurable form
+│       ├── index.html                The plain page: a chat box and a configurable form
+│       ├── favicon.svg               The icon, the same one the demo uses
+│       ├── favicon.ico               Fallback for Safari and older browsers
+│       └── apple-touch-icon.png      The iOS home screen icon
 ├── demo/                             The Flowdeck site, built on the same workflow
 │   ├── src/                          The site's source
 │   ├── knowledge/
